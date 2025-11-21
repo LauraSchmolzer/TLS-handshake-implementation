@@ -56,15 +56,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         # We generate the Session key from AESGCM
 
-        client_random = server_hello_obj.random_bytes
-        server_random = base64.b64decode(hello_server["server_random"])
+        server_random = server_hello_obj.random_bytes
+        client_random = base64.b64decode(hello_client["client_random"])
 
         session_key = AESGCM_session_key(client_random,server_random,shared_secret)
         
-        # Start listener thread
-        threading.Thread(target=listen_thread, args=(conn, session_key, "client"), daemon=True).start()
-        # Main thread handles sending
-        send_thread(conn, session_key)
+        data = conn.recv(1024)     # <-- bytes
+        nonce = data[:12]
+        print(nonce)
+        ciphertext = data[12:]
+        plaintext = decrypt_message(session_key, ciphertext, nonce)
+        print("Received:", plaintext)
+
+        # Reply
+        reply = "Hello, client!"
+        nonce = b'\x01' * 12
+        ciphertext = encrypt_message(session_key, reply, nonce)
+        conn.sendall(nonce + ciphertext)
+
 
     
 

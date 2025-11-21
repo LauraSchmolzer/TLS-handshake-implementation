@@ -63,13 +63,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     server_random = base64.b64decode(hello_server["server_random"])
 
     session_key = AESGCM_session_key(client_random,server_random,shared_secret)
+
+    # Send message
+    msg = "Hello, server!"
+    nonce = b'\x00' * 12
+    ciphertext = encrypt_message(session_key, msg, nonce)
+    s.sendall(nonce + ciphertext)
+
+    # Receive reply
+    data = s.recv(1024)        # <-- bytes
+    nonce = data[:12]
+    ciphertext = data[12:]
+    plaintext = decrypt_message(session_key, ciphertext, nonce)  # decrypt expects bytes
+    print("Received:", plaintext)
+
     
-    # Start listener thread
-    threading.Thread(target=listen_thread, args=(s, session_key, "server"),daemon=True).start()
 
-
-    # Main thread handles sending
-    send_thread(s, session_key)
 
 
 
