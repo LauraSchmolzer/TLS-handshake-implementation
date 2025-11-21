@@ -26,13 +26,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Create ServerHello
         server_hello_obj = HelloMessage("server")
         hello_server = server_hello_obj.to_dict()
-        
+
         # We send back the ServerHello to the Client
         conn.sendall(json.dumps(hello_server).encode())
         
         # Compute shared secret
         client_pub_bytes = base64.b64decode(hello_client["x25519_pub"])
-        from cryptography.hazmat.primitives.asymmetric import x25519
+  
         client_pub_key = x25519.X25519PublicKey.from_public_bytes(client_pub_bytes)
         shared_secret = server_hello_obj.private_key.exchange(client_pub_key)
         
