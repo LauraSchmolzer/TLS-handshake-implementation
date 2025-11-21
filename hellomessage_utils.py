@@ -1,0 +1,47 @@
+import os
+import base64
+from cryptography.hazmat.primitives import serialization
+from keys import *
+
+def to_b64(data: bytes) -> str:
+    """Encode bytes as base64 string for JSON/network."""
+    return base64.b64encode(data).decode("ascii")
+
+class HelloMessage:
+    def __init__(self, role: str, supported_ciphers=None, supported_versions=None, key_exchanges=None):
+        """
+        Initialize a Hello message for TLS-like handshake.
+
+        Args:
+            role (str): "client" or "server"
+            supported_ciphers (list): optional list of cipher suites
+            supported_versions (list): optional list of protocol versions
+            key_exchanges (list): optional list of key exchange algorithms
+        """
+        self.role = role.lower()
+        self.random_bytes = os.urandom(32)  # 32-byte random nonce
+        self.private_key, self.public_key = generate_x25519_keypair()
+        
+        # Default values if none provided
+        self.supported_ciphers = supported_ciphers or ["CHACHA20_POLY1305_SHA256"]
+        self.supported_versions = supported_versions or ["TLS1.3"]
+        self.key_exchanges = key_exchanges or ["X25519"]
+
+    def to_dict(self) -> dict:
+        """
+        Serialize the Hello message to a dictionary ready for network transmission.
+        """
+        public_bytes = self.public_key.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+
+        return {
+            "type": f"{self.role.capitalize()}Hello",
+            f"{self.role}_random": to_b64(self.random_bytes),
+            "supported_ciphers": self.supported_ciphers,
+            "supported_versions": self.supported_versions,
+            "key_exchange_algorithms": self.key_exchanges,
+            "x25519_pub": to_b64(public_bytes)
+        }
+
