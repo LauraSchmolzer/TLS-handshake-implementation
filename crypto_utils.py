@@ -37,4 +37,4 @@ def decrypt_message(session_key: bytes, ciphertext: bytes, nonce: bytes) -> str:
         plaintext: decrypted string
     """
     aead = AESGCM(session_key)
-    return (aead.decrypt(nonce, ciphertext, None)).decode()
+    return aead.decrypt(nonce, ciphertext, None).decode()
