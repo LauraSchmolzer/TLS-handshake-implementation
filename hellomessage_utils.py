@@ -1,7 +1,7 @@
 import os
 import base64
 from cryptography.hazmat.primitives import serialization
-from keys import *
+from key_generation import *
 
 def to_b64(data: bytes) -> str:
     """Encode bytes as base64 string for JSON/network."""

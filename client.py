@@ -1,32 +1,47 @@
-from keys import generate_x25519_keypair
-import os
+# This file simulates the Client
+import socket
+import json
 from hellomessage_utils import *
 
-def client():
-    """
-    This is the Client main function.
-    Generates a ClientHello message for the TLS-like handshake
-    and prepares the ephemeral key and client random for the next steps.
+HOST = "127.0.0.1"
+PORT = 4444
+
+"""
+    As TLS 1.3 is Client-initated the HelloClient will be generated 
+    before the Client will connect to the server and send the request
+"""
+
+print("Client: ClientHello is being initialized.")
+
+# Build the HelloMessage class for the client
+hello_obj = HelloMessage(role="client")
+
+# Get the network-ready dictionary
+hello_client = hello_obj.to_dict()
+
+print("ClientHello generated successfully.")
+print("ClientHello message:", hello_client)  # show message contents
+
+# Now the Client connects to the server
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
     
-    Returns:
-        hello_client (dict): JSON-serializable ClientHello message
-        private_key (X25519PrivateKey): ephemeral private key for this session
-        client_random (bytes): 32-byte random nonce used in handshake
-    """
+    # Send ClientHello
+    s.sendall(json.dumps(hello_client).encode())
+    
+    # Receive ServerHello
+    data = s.recv(4096)
+    hello_server = json.loads(data.decode())
+    
+    # Compute shared secret
+    server_pub_bytes = base64.b64decode(hello_server["x25519_pub"])
 
-    print("Client: ClientHello is being initialized.")
+    server_pub_key = x25519.X25519PublicKey.from_public_bytes(server_pub_bytes)
+    shared_secret = hello_obj.private_key.exchange(server_pub_key)
+    
+    print("Client: Shared secret computed!")
 
-    # Build the HelloMessage class for the client
-    hello_obj = HelloMessage(role="client")
 
-    # Get the network-ready dictionary
-    hello_client = hello_obj.to_dict()
-
-    print("ClientHello generated successfully.")
-    print("ClientHello message:", hello_client)  # show message contents
-
-    # Return values needed for handshake continuation
-    return hello_client, hello_obj.private_key, hello_obj.random_bytes
   
 
 
