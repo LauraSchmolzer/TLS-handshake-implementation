@@ -31,6 +31,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         conn.sendall(json.dumps(hello_server).encode())
         
         # Compute shared secret
+        """
+            Compute the shared secret using the ECDH key exchange protocol (X25519).
+            This shared secret is derived from the server's ephemeral private key
+            and the client's ephemeral public key. It will be used as input to
+            the handshake key derivation function (HKDF) for symmetric encryption.
+
+            The ECDH exchange ensures that both client and server derive the same
+            secret without transmitting it over the network.
+
+            HKDF takes a raw secret (like from ECDH) and derive one or more 
+            cryptographically strong keys.
+
+            I have added a detailed description of ECDH and HKDF in the documentation.
+        """
         client_pub_bytes = base64.b64decode(hello_client["x25519_pub"])
   
         client_pub_key = x25519.X25519PublicKey.from_public_bytes(client_pub_bytes)
