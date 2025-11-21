@@ -56,8 +56,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         # We generate the Session key from AESGCM
 
-        client_random = server_hello_obj.random_bytes
-        server_random = base64.b64decode(hello_server["server_random"])
+        server_random = server_hello_obj.random_bytes
+        client_random = base64.b64decode(hello_client["client_random"])
 
         session_key = AESGCM_session_key(client_random,server_random,shared_secret)
         
