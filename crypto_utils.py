@@ -1,17 +1,19 @@
-from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
 """
-    This means ChaCha20 is used for encryption, 
-    it is a stream cipher that is fast and secure
+    AES-GCM is an AEAD cipher (Authenticated Encryption with Associated Data).
+    
+    AES (Advanced Encryption Standard) provides the encryption,
+    GCM (Galois/Counter Mode) provides message integrity and authentication (MAC)
+    
+    Together, this ensures both confidentiality and authenticity of messages.
 
-    Poly1205 is a message authentication code (MAC),
-    ensuring message authenticity and integrity
-
-    Together is is an AEAD cipher (Authenticated Encryption with Associated Data)
+    I have added a detailed description of AESGCM in the documentation.
 """
 
 def encrypt_message(session_key: bytes, plaintext: str, nonce: bytes) -> bytes:
     """
-    Encrypt a plaintext message using ChaCha20-Poly1305.
+    Encrypt a plaintext message using AES-GCM.
     
     Args:
         session_key: symmetric key derived from HKDF
@@ -20,12 +22,12 @@ def encrypt_message(session_key: bytes, plaintext: str, nonce: bytes) -> bytes:
     Returns:
         ciphertext: encrypted bytes
     """
-    aead = ChaCha20Poly1305(session_key)
+    aead = AESGCM(session_key)
     return aead.encrypt(nonce, plaintext.encode(), None)
 
 def decrypt_message(session_key: bytes, ciphertext: bytes, nonce: bytes) -> str:
     """
-    Decrypt a ciphertext message using ChaCha20-Poly1305.
+    Decrypt a ciphertext message using AES-GCM.
     
     Args:
         session_key: symmetric key derived from HKDF
@@ -34,5 +36,5 @@ def decrypt_message(session_key: bytes, ciphertext: bytes, nonce: bytes) -> str:
     Returns:
         plaintext: decrypted string
     """
-    aead = ChaCha20Poly1305(session_key)
+    aead = AESGCM(session_key)
     return aead.decrypt(nonce, ciphertext, None).decode()
