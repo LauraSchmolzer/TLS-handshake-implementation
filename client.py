@@ -2,6 +2,8 @@
 import socket
 import json
 from hellomessage_utils import *
+from key_generation import *
+from concurrency import *
 
 HOST = "127.0.0.1"
 PORT = 4444
@@ -54,6 +56,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     shared_secret = hello_obj.private_key.exchange(server_pub_key)
     
     print("Client: Shared secret computed!")
+
+    # We generate the Session key from AESGCM
+
+    client_random = hello_obj.random_bytes
+    server_random = base64.b64decode(hello_server["server_random"])
+
+    session_key = AESGCM_session_key(client_random,server_random,shared_secret)
+    
+    # Start listener thread
+    threading.Thread(target=listen_thread, args=(s, session_key, "server"),daemon=True).start()
+
+
+    # Main thread handles sending
+    send_thread(s, session_key)
+
+
 
 
   
