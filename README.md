@@ -31,4 +31,4 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 ## Cryptography Overview
 - **Ephemeral key exchange:** X25519 used to derive a shared secret.
 - **Symmetric encryption:** AES-GCM for authenticated encryption of messages.
-- **PKI (optional):** Server identity is verified via a CA-signed certificate.
+- **PKI :** Server identity is verified via a CA-signed certificate.
