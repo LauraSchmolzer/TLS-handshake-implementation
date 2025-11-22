@@ -61,6 +61,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         session_key = AESGCM_session_key(client_random,server_random,shared_secret)
         
+        print("___________________________________________________")
+        print("Server: you can now send and receive messages!") 
+
         # Start listener thread
         threading.Thread(target=listen_thread, args=(conn, session_key, "client"), daemon=True).start()
         # Main thread handles sending

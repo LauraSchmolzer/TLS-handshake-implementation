@@ -67,9 +67,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Start listener thread
     threading.Thread(target=listen_thread, args=(s, session_key, "server"),daemon=True).start()
 
-
     # Main thread handles sending
     send_thread(s, session_key)
+
+    print("___________________________________________________")
+    print("Client: you can now send and receive messages!")
 
 
 
