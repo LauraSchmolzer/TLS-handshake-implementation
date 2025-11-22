@@ -2,13 +2,14 @@ import os
 import base64
 from cryptography.hazmat.primitives import serialization
 from key_generation import *
+from certificate import *
 
 def to_b64(data: bytes) -> str:
     """Encode bytes as base64 string for JSON/network."""
     return base64.b64encode(data).decode("ascii")
 
 class HelloMessage:
-    def __init__(self, role: str, supported_ciphers=None, supported_versions=None, key_exchanges=None):
+    def __init__(self, role: str, certificate: Certificate, supported_ciphers=None, supported_versions=None, key_exchanges=None):
         """
         Initialize a Hello message for TLS-like handshake.
 
@@ -21,6 +22,7 @@ class HelloMessage:
         self.role = role.lower()
         self.random_bytes = os.urandom(32)  # 32-byte random nonce
         self.private_key, self.public_key = generate_x25519_keypair()
+        self.certificate = certificate
         
         # Default values if none provided
         self.supported_ciphers = supported_ciphers or ["CHACHA20_POLY1305_SHA256"]
@@ -42,6 +44,7 @@ class HelloMessage:
             "supported_ciphers": self.supported_ciphers,
             "supported_versions": self.supported_versions,
             "key_exchange_algorithms": self.key_exchanges,
-            "x25519_pub": to_b64(public_bytes)
+            "x25519_pub": to_b64(public_bytes),
+            "certificate": self.certificate.to_dict()
         }
 
