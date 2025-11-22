@@ -28,9 +28,6 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 - The connection uses HOST = "127.0.0.1" and PORT = 4444. Ensure no other process is using that port.
 - Both scripts should be in the same directory, else adjust the paths.
 
-**Security / Cryptography Notes:**  
-Add a short section describing the cryptography involved:
-
 ## Cryptography Overview
 - **Ephemeral key exchange:** X25519 used to derive a shared secret.
 - **Symmetric encryption:** AES-GCM for authenticated encryption of messages.
