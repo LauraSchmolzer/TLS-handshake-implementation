@@ -34,6 +34,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Receive ServerHello
     data = s.recv(4096)
     hello_server = json.loads(data.decode())
+
+    # Retrieve server certificate
+    server_certificate = Certificate.from_dict(hello_server["certificate"])
+
+    # Retrieve Certificate Authority public key
+    ca_pub_b64 = hello_server["ca_pub"]
+    ca_pub_bytes = base64.b64decode(ca_pub_b64)
+
+    # Recreate Certificate Authority public key
+    ca_public_key = ed25519.Ed25519PublicKey.from_public_bytes(ca_pub_bytes)
+
+    # Verify server certificate
+    ca_public_key.verify(
+        server_certificate.signature,
+        server_certificate.public_key
+    )
+
+    print(f"Client: Server certificate verified! Identity: {hello_server['certificate']['identity']}")
     
     # Compute shared secret
     """
@@ -64,14 +82,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     session_key = AESGCM_session_key(client_random,server_random,shared_secret)
     
+    print("___________________________________________________")
+    print("Client: you can now send and receive messages!")
     # Start listener thread
     threading.Thread(target=listen_thread, args=(s, session_key, "server"),daemon=True).start()
 
     # Main thread handles sending
     send_thread(s, session_key)
 
-    print("___________________________________________________")
-    print("Client: you can now send and receive messages!")
+
 
 
 

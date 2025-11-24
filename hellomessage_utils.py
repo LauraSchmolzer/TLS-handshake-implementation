@@ -9,7 +9,7 @@ def to_b64(data: bytes) -> str:
     return base64.b64encode(data).decode("ascii")
 
 class HelloMessage:
-    def __init__(self, role: str, certificate: Certificate, supported_ciphers=None, supported_versions=None, key_exchanges=None):
+    def __init__(self, role: str, certificate: Certificate=None, supported_ciphers=None, supported_versions=None, key_exchanges=None):
         """
         Initialize a Hello message for TLS-like handshake.
 
@@ -18,11 +18,12 @@ class HelloMessage:
             supported_ciphers (list): optional list of cipher suites
             supported_versions (list): optional list of protocol versions
             key_exchanges (list): optional list of key exchange algorithms
+            certificate (Certificate) : optional certificate of identity
         """
         self.role = role.lower()
         self.random_bytes = os.urandom(32)  # 32-byte random nonce
         self.private_key, self.public_key = generate_x25519_keypair()
-        self.certificate = certificate
+        self.certificate = certificate  # Can be None for client
         
         # Default values if none provided
         self.supported_ciphers = supported_ciphers or ["CHACHA20_POLY1305_SHA256"]
@@ -37,14 +38,19 @@ class HelloMessage:
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw
         )
-
-        return {
+        
+        d = {
             "type": f"{self.role.capitalize()}Hello",
             f"{self.role}_random": to_b64(self.random_bytes),
             "supported_ciphers": self.supported_ciphers,
             "supported_versions": self.supported_versions,
             "key_exchange_algorithms": self.key_exchanges,
-            "x25519_pub": to_b64(public_bytes),
-            "certificate": self.certificate.to_dict()
+            "x25519_pub": to_b64(public_bytes)
         }
+
+        # Only include certificate if it exists
+        if self.certificate:
+            d["certificate"] = self.certificate.to_dict()
+
+        return d
 

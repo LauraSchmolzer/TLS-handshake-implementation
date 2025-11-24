@@ -20,14 +20,36 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     conn, addr = s.accept()
     with conn:
         print("Server: Connected by", addr)
-        
+
         # Receive ClientHello
         data = conn.recv(4096)
         hello_client = json.loads(data.decode())
         
-        # Create ServerHello
-        server_hello_obj = HelloMessage("server")
+        # Generate the server Identity keypair
+        server_identity = IdentityKeypair()
+        pub_bytes = server_identity.to_bytes()
+
+        # Server identity keypair is send to the CA to issue a Certificate
+        certificate_authority = CertificateAuthority()  # This is my third party
+        server_certificate = certificate_authority.issue_certificate(pub_bytes=pub_bytes, identity="trusted-server")
+
+        ca_pub_bytes = certificate_authority.public.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+
+        # Send ca_pub_bytes (or base64 encode it)
+        ca_pub_b64 = to_b64(ca_pub_bytes)
+
+        # Build ServerHello
+        server_hello_obj = HelloMessage( role="server", certificate=server_certificate)
+
+        # Create ServerHello and add the ca public bytes
         hello_server = server_hello_obj.to_dict()
+        hello_server["ca_pub"] = to_b64(certificate_authority.public.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        ))
 
         # We send back the ServerHello to the Client
         conn.sendall(json.dumps(hello_server).encode())
