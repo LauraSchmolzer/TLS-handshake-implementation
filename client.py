@@ -1,5 +1,6 @@
 # This file simulates the Client
 import socket
+import threading
 import json
 from hellomessage_utils import *
 from key_generation import *
@@ -45,13 +46,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Recreate Certificate Authority public key
     ca_public_key = ed25519.Ed25519PublicKey.from_public_bytes(ca_pub_bytes)
 
-    # Verify server certificate
+   # Verify CA signature over server public key
     ca_public_key.verify(
         server_certificate.signature,
         server_certificate.public_key
     )
 
-    print(f"Client: Server certificate verified! Identity: {hello_server['certificate']['identity']}")
+    # Verify identity matches expected identity
+    if server_certificate.identity != "trusted-server":
+        raise PermissionError(
+            f"Server identity mismatch! Expected 'trusted-server', got '{server_certificate.identity}'"
+        )
+
+    print(f"Client: Server certificate verified! Identity: {server_certificate.identity}")
     
     # Compute shared secret
     """
@@ -85,10 +92,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print("___________________________________________________")
     print("Client: you can now send and receive messages!")
     # Start listener thread
-    threading.Thread(target=listen_thread, args=(s, session_key, "server"),daemon=True).start()
+    shutdown_event = threading.Event()
+    threading.Thread(target=listen_thread, args=(s, session_key, shutdown_event, "server"),daemon=True).start()
 
     # Main thread handles sending
-    send_thread(s, session_key)
+    send_thread(s, session_key, shutdown_event)
 
 
 

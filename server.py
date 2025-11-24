@@ -1,5 +1,6 @@
 # This file simulates the Server
 import socket
+import threading
 import json
 from hellomessage_utils import *
 from key_generation import *
@@ -85,11 +86,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         print("___________________________________________________")
         print("Server: you can now send and receive messages!") 
-
+        shutdown_event = threading.Event()
         # Start listener thread
-        threading.Thread(target=listen_thread, args=(conn, session_key, "client"), daemon=True).start()
+        threading.Thread(target=listen_thread, args=(conn, session_key,shutdown_event, "client"), daemon=True).start()
         # Main thread handles sending
-        send_thread(conn, session_key)
+        send_thread(conn, session_key,shutdown_event)
 
     
 

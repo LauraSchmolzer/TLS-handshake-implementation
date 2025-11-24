@@ -8,19 +8,25 @@ def to_b64(data: bytes) -> str:
 
 class CertificateAuthority:
     """
-    This is a trusted third party that can vouch for others identities.
-    One CA can issue certificates to many clients/servers.
+        Represents a trusted third-party Certificate Authority (CA).
 
-        Purpose:    
-            Sign other public keys to certify that they are trustworthy
-            Verify certificates signed by itself
+        Purpose:
+        Responsible for binding an identity to a public key. 
+        It does this by signing the public key, forming a 
+        certificate. Any client who trusts the CA's public key can verify 
+        certificates issued by it.
+
+        Responsibilities:
+        - Sign identity public keys to create certificates
+        - Verify certificates it previously issued
+        - Act as a trust anchor in TLS system
     """
     def __init__(self):
-        self.private = ed25519.Ed25519PrivateKey.generate()
-        self.public = self.private.public_key()
+        self.private = ed25519.Ed25519PrivateKey.generate() # This will essentially sign the subject’s public key
+        self.public = self.private.public_key() # This can be distributed to all clients
 
     def issue_certificate(self, pub_bytes, identity):
-        # Generate the signature with the keys 
+        # Generate the signature: CA's private key over certificate public key
         signature = self.private.sign(pub_bytes)
         # Here we initialize the Certificate
         return Certificate(identity, pub_bytes, signature)
@@ -30,6 +36,15 @@ class CertificateAuthority:
         return True
 
 class Certificate:
+    """
+        Object of the Certificate
+
+        Args:
+            identity (str): identity of the Certificate
+            public key (bytes): The Ed25519 public key of the certificate owner. 
+                                This is the key the CA is certifying
+            signature (bytes): A signature produced by the CA's private key over `public_key`.
+    """
     def __init__(self, identity, public_key, signature):
         self.identity = identity
         self.public_key = public_key
@@ -46,6 +61,7 @@ class Certificate:
         }
     
     def from_dict(d: dict):
+        """Reconstruct a certificate from JSON-safe dict."""
         pub_bytes = base64.b64decode(d["public_key"])
         sig_bytes = base64.b64decode(d["signature"])
         identity = d["identity"]
@@ -53,12 +69,17 @@ class Certificate:
 
 class IdentityKeypair:
     """
+    Represents a long-term Ed25519 identity keypair, which 
+    represents the cryptographic identity of an endpoint
+
     Purpose:
-        Sign messages or handshake transcripts
-        Verify signatures (using its public key)
-        Identify itself cryptographically
+      - Signing handshake transcripts (authenticating the endpoint)
+      - Proving ownership of a certificate
+      - Verifying signatures from the remote peer
+
     """
     def __init__(self):
+        # Generate a long-term Ed25519 identity keypair
         self.private = ed25519.Ed25519PrivateKey.generate()
         self.public = self.private.public_key()
 
