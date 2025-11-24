@@ -23,6 +23,11 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
    ```
 4. The client will connect to the server, perform the handshake, and then you can start sending messages interactively.
 
+5. In order to close the server or client safely, use 
+   ```bash
+   exit
+   ```
+
 ### Notes: 
 - Make sure the Server is running before the Client as it is Client-initiated. 
 - The connection uses HOST = "127.0.0.1" and PORT = 4444. Ensure no other process is using that port.
