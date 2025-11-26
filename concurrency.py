@@ -93,7 +93,7 @@ def send_thread(conn, session_key, shutdown_event):
                     ciphertext = encrypt_message(session_key, msg, nonce)
                     conn.sendall(nonce + ciphertext)
                 except:
-                    print("Connection is already closing, failed to send ciphertext.")
+                    print("Connection is already closed, failed to send ciphertext.")
                     pass
                 print("Closing connection…")
                 # Signal the connection is being shut down: can be checked by other thread
