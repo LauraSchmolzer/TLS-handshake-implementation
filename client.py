@@ -19,28 +19,28 @@ print("Client: ClientHello is being initialized.")
 # Build the HelloMessage class for the client
 hello_obj = HelloMessage(role="client")
 
-# Get the network-ready dictionary
-hello_client = hello_obj.to_dict()
+# Get the network-ready dictionary of the ClientHello
+client_hello = hello_obj.to_dict()
 
 print("ClientHello generated successfully.")
-print("ClientHello message:", hello_client)  # show message contents
+print("ClientHello message:", client_hello)  # show message contents
 
 # Now the Client connects to the server
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     
     # Send ClientHello
-    s.sendall(json.dumps(hello_client).encode())
+    s.sendall(json.dumps(client_hello).encode())
     
     # Receive ServerHello
     data = s.recv(4096)
-    hello_server = json.loads(data.decode())
+    server_hello = json.loads(data.decode())
 
     # Retrieve server certificate
-    server_certificate = Certificate.from_dict(hello_server["certificate"])
+    server_certificate = Certificate.from_dict(server_hello["certificate"])
 
     # Retrieve Certificate Authority public key
-    ca_pub_b64 = hello_server["ca_pub"]
+    ca_pub_b64 = server_hello["ca_pub"]
     ca_pub_bytes = base64.b64decode(ca_pub_b64)
 
     # Recreate Certificate Authority public key
@@ -75,24 +75,29 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         I have added a detailed description of ECDH and HKDF in the documentation.
     """
-    server_pub_bytes = base64.b64decode(hello_server["x25519_pub"])
-
-    server_pub_key = x25519.X25519PublicKey.from_public_bytes(server_pub_bytes)
-    shared_secret = hello_obj.private_key.exchange(server_pub_key)
+    # From the ServerHello message, we retrieve the public bytes and public key
+    server_public_bytes = base64.b64decode(server_hello["public_bytes"])
+    server_public_key = x25519.X25519PublicKey.from_public_bytes(server_public_bytes)
+    # With these we compute the shared secret
+    shared_secret = hello_obj.private_key.exchange(server_public_key)
     
     print("Client: Shared secret computed!")
 
-    # We generate the Session key from AESGCM
+    # We generate the Session keys from AESGCM
+    client_random_bytes = hello_obj.random_bytes
+    server_random_bytes = base64.b64decode(server_hello["server_random"])
 
-    client_random = hello_obj.random_bytes
-    server_random = base64.b64decode(hello_server["server_random"])
+    # The session key is generated using AESGCM, and then all random bytes with the shared secret
+    session_key = AESGCM_session_key(client_random_bytes,server_random_bytes,shared_secret)
 
-    session_key = AESGCM_session_key(client_random,server_random,shared_secret)
+    # Now, we can start listening and sending
     
     print("___________________________________________________")
     print("Client: you can now send and receive messages!")
-    # Start listener thread
+    # we need a shared event in the threading for when is being exited
     shutdown_event = threading.Event()
+
+    # Start listener thread
     threading.Thread(target=listen_thread, args=(s, session_key, shutdown_event, "server"),daemon=True).start()
 
     # Main thread handles sending

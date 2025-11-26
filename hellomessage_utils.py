@@ -45,7 +45,7 @@ class HelloMessage:
             "supported_ciphers": self.supported_ciphers,
             "supported_versions": self.supported_versions,
             "key_exchange_algorithms": self.key_exchanges,
-            "x25519_pub": to_b64(public_bytes)
+            "public_bytes": to_b64(public_bytes)
         }
 
         # Only include certificate if it exists
