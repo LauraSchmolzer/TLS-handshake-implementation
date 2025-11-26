@@ -17,7 +17,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.listen(1)
     print("Server: Listening for client...")
 
-    # Here we accept the request and we start with TLS session
+    # Accept the request and we start with TLS session
     conn, addr = s.accept()
     with conn:
         print("Server: Connected by", addr)
@@ -44,10 +44,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         server_hello_obj = HelloMessage( role="server", certificate=server_certificate)
         hello_server = server_hello_obj.to_dict()
 
-        # add the public key to the message to send over the network 
+        # Add the public key to the message to send over the network 
         hello_server["ca_pub"] = ca_public_key_b64
 
-        # We send back the ServerHello to the Client
+        # Send back the ServerHello to the Client
         conn.sendall(json.dumps(hello_server).encode())
         
         # Compute shared secret
@@ -72,7 +72,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         print("Server: Shared secret computed!")
 
-        # We generate the Session key from AESGCM
+        # Generate the Session key from AESGCM
         server_random_bytes = server_hello_obj.random_bytes
         client_random_bytes = base64.b64decode(client_hello["client_random"])
 
@@ -81,7 +81,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         print("___________________________________________________")
         print("Server: you can now send and receive messages!") 
-        # we need a shared event in the threading for when is being exited
+        # Shared event in the threading for when one is being exited
         shutdown_event = threading.Event()
 
         # Start listener thread

@@ -32,7 +32,7 @@ class CertificateAuthority:
     def issue_certificate(self, public_key_bytes, identity):
         # Generate the signature: CA's private key over certificate public key
         signature = self.private.sign(public_key_bytes)
-        # Here we initialize the Certificate
+        # Initialize the Certificate
         return Certificate(identity, public_key_bytes, signature)
     
     def verify(self, certificate):
@@ -93,11 +93,11 @@ class IdentityKeypair:
         self.private = ed25519.Ed25519PrivateKey.generate()
         self.public = self.private.public_key()
 
-    # We sign the message using the private key
+    # Sign the message using the private key
     def sign(self, message: bytes) -> bytes:
         return self.private.sign(message)
 
-    # We verify the signature using the message and public key
+    # Verify the signature using the message and public key
     def verify(self, signature: bytes, message: bytes):
         return self.public.verify(signature, message)
     

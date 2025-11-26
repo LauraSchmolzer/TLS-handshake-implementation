@@ -25,7 +25,7 @@ client_hello = hello_obj.to_dict()
 print("ClientHello generated successfully.")
 print("ClientHello message:", client_hello)  # show message contents
 
-# Now the Client connects to the server
+# Client connects to the server
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     
@@ -75,26 +75,26 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         I have added a detailed description of ECDH and HKDF in the documentation.
     """
-    # From the ServerHello message, we retrieve the public bytes and public key
+    # From the ServerHello message, retrieve the public bytes and public key
     server_public_bytes = base64.b64decode(server_hello["public_bytes"])
     server_public_key = x25519.X25519PublicKey.from_public_bytes(server_public_bytes)
-    # With these we compute the shared secret
+    # Compute the shared secret
     shared_secret = hello_obj.private_key.exchange(server_public_key)
     
     print("Client: Shared secret computed!")
 
-    # We generate the Session keys from AESGCM
+    # Generate the Session keys from AESGCM
     client_random_bytes = hello_obj.random_bytes
     server_random_bytes = base64.b64decode(server_hello["server_random"])
 
     # The session key is generated using AESGCM, and then all random bytes with the shared secret
     session_key = AESGCM_session_key(client_random_bytes,server_random_bytes,shared_secret)
 
-    # Now, we can start listening and sending
+    # Start listening and sending
     
     print("___________________________________________________")
     print("Client: you can now send and receive messages!")
-    # we need a shared event in the threading for when is being exited
+    # Generate shared event in the threading for when one is being exited
     shutdown_event = threading.Event()
 
     # Start listener thread
