@@ -2,7 +2,7 @@ import os
 from cryptography.hazmat.primitives import serialization
 from key_generation import *
 from certificate import *
-from  crypto_utils import to_b64, generate_x25519_keypair, decrypt_message
+from  crypto_utils import to_b64, generate_x25519_keypair, public_key_to_bytes
 
 class HelloMessage:
     def __init__(self, role: str, certificate: Certificate=None, supported_ciphers=None, supported_versions=None, key_exchanges=None):
@@ -30,10 +30,7 @@ class HelloMessage:
         """
         Serialize the Hello message to a dictionary ready for network transmission.
         """
-        public_bytes = self.public_key.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
-        )
+        public_bytes = public_key_to_bytes(self.public_key)
         
         d = {
             "type": f"{self.role.capitalize()}Hello",

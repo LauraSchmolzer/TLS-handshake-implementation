@@ -20,7 +20,7 @@ def generate_x25519_keypair():
     public_key = private_key.public_key()
     return private_key, public_key
 
-def AESGCM_session_key(client_random,server_random,shared_secret):
+def AESGCM_session_key(client_random: bytes,server_random: bytes ,shared_secret: bytes) -> bytes:
     """"
         Here we derive AESGCM session keyy
         

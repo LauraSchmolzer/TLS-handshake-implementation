@@ -1,4 +1,5 @@
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives import serialization
 import base64
 
 """
@@ -53,3 +54,10 @@ def to_b64(data: bytes) -> str:
 # Decode bytes as base64 string from JSON/network
 def from_b64(data: str) -> bytes:
     return base64.b64decode(data.encode("ascii"))
+
+# Convert an Ed25519 public key to raw bytes.
+def public_key_to_bytes(public_key) -> bytes:
+    return public_key.public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
