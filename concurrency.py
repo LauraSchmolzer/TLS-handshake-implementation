@@ -83,7 +83,13 @@ def send_thread(conn, session_key, shutdown_event):
     try:
         # Check if it is signalled that thread is shut down
         while not shutdown_event.is_set():
-            msg = input(" ")
+            # Here whe wait for user input to send message
+            try:
+                msg = input(" ")
+            except KeyboardInterrupt: # Handle Ctrl_C gracefully
+                print("\n[INFO] Send thread interrupted. Closing connection...")
+                shutdown_event.set()
+                break  # exit the loop cleanly
 
             # Generate the 12-byte nonce from the counter
             nonce = counter.to_bytes(12, "big") 

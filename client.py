@@ -1,10 +1,10 @@
 # This file simulates the Client
-import socket
-import threading
-import json
+import socket, threading,json,sys,time
+
 from hellomessage_utils import *
 from key_generation import *
 from concurrency import *
+
 
 HOST = "127.0.0.1"
 PORT = 4444
@@ -25,10 +25,19 @@ client_hello = hello_obj.to_dict()
 print("ClientHello generated successfully.")
 print("ClientHello message:", client_hello)  # show message contents
 
-# Client connects to the server
+# Client connects to the server, tries 3 times if connection is refused
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    
+    for attempt in range(3):
+        try:
+            s.connect((HOST, PORT))
+            break
+        except ConnectionRefusedError:
+            print(f"[INFO] Attempt {attempt+1}: Connection refused, retrying...")
+            time.sleep(1)
+    else:
+        print("[ERROR] Failed to connect after 3 attempts.")
+        sys.exit(1)
+
     # Send ClientHello
     s.sendall(json.dumps(client_hello).encode())
     
@@ -102,25 +111,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Main thread handles sending
     send_thread(s, session_key, shutdown_event)
-
-
-
-
-
-
-  
-
-
-
-    
-
-
-
-    
-
-
-
-
-
-
-

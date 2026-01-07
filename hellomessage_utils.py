@@ -2,10 +2,15 @@ import os
 from cryptography.hazmat.primitives import serialization
 from key_generation import *
 from certificate import *
-from  crypto_utils import to_b64, generate_x25519_keypair, public_key_to_bytes
+from  crypto_utils import to_b64, public_key_to_bytes
+
+DEFAULT_CIPHERS = ["CHACHA20_POLY1305_SHA256"]
+DEFAULT_VERSIONS = ["TLS1.3"]
+DEFAULT_KEY_EXCHANGES = ["X25519"]
+
 
 class HelloMessage:
-    def __init__(self, role: str, certificate: Certificate=None, supported_ciphers=None, supported_versions=None, key_exchanges=None):
+    def __init__(self, role: str, certificate: Certificate=None, supported_ciphers= None, supported_versions=None, key_exchanges=None):
         """
         Initialize a Hello message for TLS-like handshake.
 
@@ -17,14 +22,17 @@ class HelloMessage:
             certificate (Certificate) : optional certificate of identity
         """
         self.role = role.lower()
+        if self.role not in ("client", "server"):
+          raise ValueError("role must be 'client' or 'server'")
+
         self.random_bytes = os.urandom(32)  # 32-byte random nonce
         self.private_key, self.public_key = generate_x25519_keypair()
         self.certificate = certificate  # Can be None for client
         
         # Default values if none provided
-        self.supported_ciphers = supported_ciphers or ["CHACHA20_POLY1305_SHA256"]
-        self.supported_versions = supported_versions or ["TLS1.3"]
-        self.key_exchanges = key_exchanges or ["X25519"]
+        self.supported_ciphers = supported_ciphers or DEFAULT_CIPHERS
+        self.supported_versions = supported_versions or DEFAULT_VERSIONS
+        self.key_exchanges = key_exchanges or DEFAULT_KEY_EXCHANGES
 
     def to_dict(self) -> dict:
         """

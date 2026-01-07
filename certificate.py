@@ -60,12 +60,13 @@ class Certificate:
             "signature": to_b64(self.signature)
         }
 
-    def from_dict(d: dict) -> "Certificate":
+    @classmethod
+    def from_dict(cls, d: dict) -> "Certificate":
         """Reconstruct a certificate from JSON-safe dict."""
         pub_bytes = from_b64(d["public_key"])
         sig_bytes = from_b64(d["signature"])
         identity = d["identity"]
-        return Certificate(identity, pub_bytes, sig_bytes)
+        return cls(identity, pub_bytes, sig_bytes)
 
 class IdentityKeypair:
     """

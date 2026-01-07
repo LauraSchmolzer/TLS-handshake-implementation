@@ -18,7 +18,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print("Server: Listening for client...")
 
     # Accept the request and we start with TLS session
-    conn, addr = s.accept()
+    try: 
+        conn, addr = s.accept()
+    except KeyboardInterrupt:
+        print("\n[INFO] Server interrupted. Shutting down...")
+        s.close()
+        exit(0)
     with conn:
         print("Server: Connected by", addr)
 
