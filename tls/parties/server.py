@@ -2,9 +2,9 @@
 import socket
 import threading
 import json
-from hellomessage_utils import *
-from key_generation import *
-from concurrency import *
+from TLS.hellomessage import *
+from utils.key_generation_utils import *
+from utils.concurrency_utils import *
 
 HOST = "127.0.0.1"
 PORT = 4444

@@ -10,7 +10,6 @@ import base64
     
     Together, this ensures both confidentiality and authenticity of messages.
 
-    I have added a detailed description of AESGCM in the documentation.
 """
 
 def encrypt_message(session_key: bytes, plaintext: str, nonce: bytes) -> bytes:

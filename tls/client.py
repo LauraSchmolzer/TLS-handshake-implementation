@@ -1,9 +1,9 @@
 # This file simulates the Client
 import socket, threading,json,sys,time
 
-from hellomessage_utils import *
-from key_generation import *
-from concurrency import *
+from TLS.hellomessage import *
+from utils.key_generation_utils import *
+from utils.concurrency_utils import *
 
 
 HOST = "127.0.0.1"

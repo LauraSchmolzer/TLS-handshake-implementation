@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.asymmetric import x25519
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
-from hellomessage_utils import *
+from TLS.hellomessage import *
 
 
 def generate_x25519_keypair():

@@ -1,8 +1,8 @@
 import os
 from cryptography.hazmat.primitives import serialization
-from key_generation import *
-from certificate import *
-from  crypto_utils import to_b64, public_key_to_bytes
+from utils.key_generation_utils import *
+from TLS.certificate import *
+from  utils.crypto_utils import to_b64, public_key_to_bytes
 
 DEFAULT_CIPHERS = ["CHACHA20_POLY1305_SHA256"]
 DEFAULT_VERSIONS = ["TLS1.3"]

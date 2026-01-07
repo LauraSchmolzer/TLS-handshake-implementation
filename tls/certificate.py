@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
-from  crypto_utils import to_b64, from_b64, public_key_to_bytes
+from  utils.crypto_utils import to_b64, from_b64, public_key_to_bytes
 
 class CertificateAuthority:
     """
