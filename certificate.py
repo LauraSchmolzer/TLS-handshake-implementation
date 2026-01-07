@@ -1,14 +1,6 @@
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
-import base64
-
-# Encode bytes as base64 string for JSON/network
-def to_b64(data: bytes) -> str:
-    return base64.b64encode(data).decode("ascii")
-
-# Decode bytes as base64 string from JSON/network
-def from_b64(data: str) -> bytes:
-    return base64.b64decode(data.encode("ascii"))
+from  crypto_utils import to_b64, from_b64
 
 class CertificateAuthority:
     """

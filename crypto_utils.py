@@ -1,4 +1,5 @@
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import base64
 
 """
     AES-GCM is an AEAD cipher (Authenticated Encryption with Associated Data).
@@ -38,3 +39,17 @@ def decrypt_message(session_key: bytes, ciphertext: bytes, nonce: bytes) -> str:
     """
     aead = AESGCM(session_key)
     return aead.decrypt(nonce, ciphertext, None).decode()
+
+
+
+"""
+    Helper functions to convert between string and base64 bytes for network transmission
+"""
+
+# Encode bytes as base64 string for JSON/network
+def to_b64(data: bytes) -> str:
+    return base64.b64encode(data).decode("ascii")
+
+# Decode bytes as base64 string from JSON/network
+def from_b64(data: str) -> bytes:
+    return base64.b64decode(data.encode("ascii"))

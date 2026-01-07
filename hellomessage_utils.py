@@ -1,12 +1,8 @@
 import os
-import base64
 from cryptography.hazmat.primitives import serialization
 from key_generation import *
 from certificate import *
-
-def to_b64(data: bytes) -> str:
-    """Encode bytes as base64 string for JSON/network."""
-    return base64.b64encode(data).decode("ascii")
+from  crypto_utils import to_b64, generate_x25519_keypair, decrypt_message
 
 class HelloMessage:
     def __init__(self, role: str, certificate: Certificate=None, supported_ciphers=None, supported_versions=None, key_exchanges=None):
