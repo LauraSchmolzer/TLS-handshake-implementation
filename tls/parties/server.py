@@ -2,7 +2,7 @@
 import socket
 import threading
 import json
-from TLS.hellomessage import *
+from tls.hellomessage import *
 from utils.key_generation_utils import *
 from utils.concurrency_utils import *
 

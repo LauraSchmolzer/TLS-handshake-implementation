@@ -1,7 +1,7 @@
 # This file simulates the Client
 import socket, threading,json,sys,time
 
-from TLS.hellomessage import *
+from tls.hellomessage import *
 from utils.key_generation_utils import *
 from utils.concurrency_utils import *
 
