@@ -1,5 +1,5 @@
 import socket
-from utils.crypto_utils import *
+from .crypto_utils import *
 
 """
     Threaded send/receive functions for a TLS-like encrypted connection.

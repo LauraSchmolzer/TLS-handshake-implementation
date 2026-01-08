@@ -1,6 +1,6 @@
 import os
-from tls.certificate import Certificate
-from  utils.crypto_utils import to_b64, public_key_to_bytes, generate_x25519_keypair
+from .certificate import Certificate
+from .utils.crypto_utils import to_b64, public_key_to_bytes, generate_x25519_keypair
 
 DEFAULT_CIPHERS = ["CHACHA20_POLY1305_SHA256"]
 DEFAULT_VERSIONS = ["TLS1.3"]

@@ -16,7 +16,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     """
     s.bind((HOST, PORT))
     s.listen(1)
-    print("Server: Listening for client...")
+    print(f"Server: Listening on {HOST}:{PORT}")
 
     # Accept the request and we start with TLS session
     try: 
@@ -25,6 +25,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("\n[INFO] Server interrupted. Shutting down...")
         s.close()
         exit(0)
+    
     with conn:
         print("Server: Connected by", addr)
 
@@ -71,7 +72,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             I have added a detailed description of ECDH and HKDF in the documentation.
         """
-        client_public_bytes = to_b64(client_hello["public_bytes"])
+        client_public_bytes = from_b64(client_hello["public_bytes"])
   
         client_public_key = recreate_HelloMessage_public_key(client_public_bytes)
         shared_secret = server_hello_obj.private_key.exchange(client_public_key)

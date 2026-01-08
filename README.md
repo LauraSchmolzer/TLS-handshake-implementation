@@ -15,11 +15,11 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 2. In the first terminal, start the server:
 
    ```bash
-   python server.py
+   python -m parties.server
    ```
 3. In the second terminal, start the client:
    ```bash
-   python client.py
+   python -m parties.client
    ```
 4. The client will connect to the server, perform the handshake, and then you can start sending messages interactively.
 
