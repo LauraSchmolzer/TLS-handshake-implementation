@@ -1,5 +1,6 @@
 import socket
-from .crypto_utils import *
+from .crypto_utils import encrypt_message, decrypt_message
+from cryptography.exceptions import InvalidTag
 
 """
     Threaded send/receive functions for a TLS-like encrypted connection.
@@ -31,9 +32,9 @@ def listen_thread(conn, session_key, shutdown_event,non_self):
             try:
                 # Wait for incoming data from the connection
                 data = conn.recv(4096)
-            except OSError:
+            except (OSError, ConnectionResetError):
                 # Socket may be closed from the other side; exit the loop safely
-                print("Socket error, breaking listen loop.")
+                print("Socket closed from other side.")
                 break
 
             if not data:
@@ -48,9 +49,9 @@ def listen_thread(conn, session_key, shutdown_event,non_self):
             try:
                 # Attempt to decrypt the received message
                 plaintext = decrypt_message(session_key, ciphertext, nonce)
-            except Exception:
+            except InvalidTag:
                 # Ignore decryption failures if connection is closing
-                print("Decryprion faled or conenction closing, breaking listen loop. ")
+                print("Warning: InvalidTag detected, breaking listen loop. ")
                 break
 
             if plaintext.lower() == "exit":

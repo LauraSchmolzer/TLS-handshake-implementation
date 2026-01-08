@@ -75,6 +75,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         client_public_bytes = from_b64(client_hello["public_bytes"])
   
         client_public_key = recreate_HelloMessage_public_key(client_public_bytes)
+        if len(client_public_bytes) != 32:
+            raise ValueError("Invalid client public key length")
+
         shared_secret = server_hello_obj.private_key.exchange(client_public_key)
         
         print("Server: Shared secret computed!")

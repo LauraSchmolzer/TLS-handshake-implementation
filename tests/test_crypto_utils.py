@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.exceptions import InvalidTag
 
-from tls.utils.crypto_utils import *
+from tls.utils.crypto_utils import encrypt_message, decrypt_message, to_b64, from_b64, public_key_to_bytes
 
 # Test encryption and decryption roundtrip
 def test_encrypt_decrypt_roundtrip():
