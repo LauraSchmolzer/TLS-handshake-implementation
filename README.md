@@ -32,6 +32,7 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 - Make sure the Server is running before the Client as it is Client-initiated. 
 - The connection uses HOST = "127.0.0.1" and PORT = 4444. Ensure no other process is using that port.
 - Both scripts should be in the same directory, else adjust the paths.
+- Pytest version 9.0.2 is used for testing.
 
 ## Cryptography Overview
 - **Ephemeral key exchange:** X25519 used to derive a shared secret.

@@ -1,9 +1,10 @@
 # This file simulates the Client
 import socket, threading,json,sys,time
 
-from tls.hellomessage import *
-from utils.key_generation_utils import *
-from utils.concurrency_utils import *
+from tls.hellomessage import HelloMessage
+from tls.utils.concurrency_utils import listen_thread, send_thread
+from tls.certificate import Certificate
+from tls.utils.crypto_utils import from_b64, recreate_CerificateAuthority_public_key, AESGCM_session_key, recreate_HelloMessage_public_key
 
 
 HOST = "127.0.0.1"
@@ -49,11 +50,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     server_certificate = Certificate.from_dict(server_hello["certificate"])
 
     # Retrieve Certificate Authority public key
-    ca_pub_b64 = server_hello["ca_pub"]
-    ca_pub_bytes = base64.b64decode(ca_pub_b64)
+    ca_public_b64 = server_hello["ca_pub"]
+    ca_public_bytes = from_b64(ca_public_b64)
 
     # Recreate Certificate Authority public key
-    ca_public_key = ed25519.Ed25519PublicKey.from_public_bytes(ca_pub_bytes)
+    ca_public_key = recreate_CerificateAuthority_public_key(ca_public_bytes)
 
    # Verify CA signature over server public key
     ca_public_key.verify(
@@ -85,8 +86,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         I have added a detailed description of ECDH and HKDF in the documentation.
     """
     # From the ServerHello message, retrieve the public bytes and public key
-    server_public_bytes = base64.b64decode(server_hello["public_bytes"])
-    server_public_key = x25519.X25519PublicKey.from_public_bytes(server_public_bytes)
+    server_public_bytes = from_b64(server_hello["public_bytes"])
+    server_public_key = recreate_HelloMessage_public_key(server_public_bytes)
     # Compute the shared secret
     shared_secret = hello_obj.private_key.exchange(server_public_key)
     
@@ -94,7 +95,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Generate the Session keys from AESGCM
     client_random_bytes = hello_obj.random_bytes
-    server_random_bytes = base64.b64decode(server_hello["server_random"])
+    server_random_bytes = from_b64(server_hello["server_random"])
 
     # The session key is generated using AESGCM, and then all random bytes with the shared secret
     session_key = AESGCM_session_key(client_random_bytes,server_random_bytes,shared_secret)

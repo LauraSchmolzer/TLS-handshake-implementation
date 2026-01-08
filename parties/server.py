@@ -2,9 +2,10 @@
 import socket
 import threading
 import json
-from tls.hellomessage import *
-from utils.key_generation_utils import *
-from utils.concurrency_utils import *
+from tls.hellomessage import HelloMessage
+from tls.utils.concurrency_utils import listen_thread, send_thread
+from tls.certificate import CertificateAuthority, IdentityKeypair
+from tls.utils.crypto_utils import to_b64, from_b64, AESGCM_session_key, recreate_HelloMessage_public_key
 
 HOST = "127.0.0.1"
 PORT = 4444
@@ -70,16 +71,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             I have added a detailed description of ECDH and HKDF in the documentation.
         """
-        client_public_bytes = base64.b64decode(client_hello["public_bytes"])
+        client_public_bytes = to_b64(client_hello["public_bytes"])
   
-        client_public_key = x25519.X25519PublicKey.from_public_bytes(client_public_bytes)
+        client_public_key = recreate_HelloMessage_public_key(client_public_bytes)
         shared_secret = server_hello_obj.private_key.exchange(client_public_key)
         
         print("Server: Shared secret computed!")
 
         # Generate the Session key from AESGCM
         server_random_bytes = server_hello_obj.random_bytes
-        client_random_bytes = base64.b64decode(client_hello["client_random"])
+        client_random_bytes = from_b64(client_hello["client_random"])
 
         # The session key is generated using AESGCM, and then all random bytes with the shared secret
         session_key = AESGCM_session_key(client_random_bytes,server_random_bytes,shared_secret)

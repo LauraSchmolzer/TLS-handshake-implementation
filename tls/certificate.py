@@ -1,5 +1,4 @@
 from cryptography.hazmat.primitives.asymmetric import ed25519
-from cryptography.hazmat.primitives import serialization
 from  utils.crypto_utils import to_b64, from_b64, public_key_to_bytes
 
 class CertificateAuthority:
@@ -18,22 +17,22 @@ class CertificateAuthority:
         - Act as a trust anchor in TLS system
     """
     def __init__(self):
-        self.private = ed25519.Ed25519PrivateKey.generate() # This will essentially sign the subject’s public key
-        self.public = self.private.public_key() # This can be distributed to all clients
+        self.private_key = ed25519.Ed25519PrivateKey.generate() # This will essentially sign the subject’s public key
+        self.public_key = self.private_key.public_key() # This can be distributed to all clients
 
     def issue_certificate(self, public_key_bytes: bytes, identity: str) -> "Certificate" :
         # Generate the signature: CA's private key over certificate public key
-        signature = self.private.sign(public_key_bytes)
+        signature = self.private_key.sign(public_key_bytes)
         # Initialize the Certificate
         return Certificate(identity, public_key_bytes, signature)
     
     def verify(self, certificate: "Certificate") -> bool :
-        self.public.verify(certificate.signature, certificate.public_key)
+        self.public_key.verify(certificate.signature, certificate.public_key)
         return True
     
     # Return raw 32-byte public key bytes for certificates or network use
     def to_bytes(self) -> bytes :
-        return public_key_to_bytes(self.public)
+        return public_key_to_bytes(self.public_key)
 
 class Certificate:
     """

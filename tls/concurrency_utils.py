@@ -50,7 +50,7 @@ def listen_thread(conn, session_key, shutdown_event,non_self):
                 plaintext = decrypt_message(session_key, ciphertext, nonce)
             except Exception:
                 # Ignore decryption failures if connection is closing
-                print("Decryprion faled or conenction closing, breaking listen loop. ")
+                print("Decryption failed or connection closing, breaking listen loop. ")
                 break
 
             if plaintext.lower() == "exit":
