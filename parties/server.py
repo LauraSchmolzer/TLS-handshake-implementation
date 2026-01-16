@@ -7,9 +7,6 @@ from tls.utils.concurrency_utils import listen_thread, send_thread
 from tls.certificate import CertificateAuthority, IdentityKeypair
 from tls.utils.crypto_utils import to_b64, from_b64, AESGCM_session_key, recreate_HelloMessage_public_key
 
-HOST = "127.0.0.1"
-PORT = 4444
-
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     """
         We open a socket for the server such that it can listen to incoming requests

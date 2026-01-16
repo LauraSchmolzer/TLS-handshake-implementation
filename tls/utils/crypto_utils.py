@@ -18,7 +18,6 @@ def generate_x25519_keypair():
             private_key : X25519PrivateKey
             public_key  : X25519PublicKey
     """
-    print("Generating X25519 keypair...")
     private_key = x25519.X25519PrivateKey.generate()
     public_key = private_key.public_key()
     return private_key, public_key

@@ -49,6 +49,7 @@ def listen_thread(conn, session_key, shutdown_event,non_self):
             try:
                 # Attempt to decrypt the received message
                 plaintext = decrypt_message(session_key, ciphertext, nonce)
+
             except InvalidTag:
                 # Ignore decryption failures if connection is closing
                 print("Warning: InvalidTag detected, breaking listen loop. ")
