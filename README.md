@@ -6,7 +6,14 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 - Implement a minimal, but cryptographically correct, TLS handshake.
 - Provide detailed logging for educational and debugging purposes.
 - Enable an interactive terminal that supports secure bidirectional messaging between client and server after the session establishment.
-- Shortly emphasise and report the cryptographic inner workings of TLS 1.3.
+- Structure the handshake as a State Machine.
+
+## State Machine Structure
+### Client State Flow
+![Client State Flow](assets/client_state_flow.png)
+
+### Server State Flow
+![Server State Flow](assets/server_state_flow.png)
 
 ## How to Run the Server and Client
 
@@ -15,11 +22,11 @@ This project is a **simplifed TLS handshake** and is not intended to be a produc
 2. In the first terminal, start the server:
 
    ```bash
-   python -m parties.server
+   python -m parties.server_driver
    ```
 3. In the second terminal, start the client:
    ```bash
-   python -m parties.client
+   python -m parties.client_driver
    ```
 4. The client will connect to the server, perform the handshake, and then you can start sending messages interactively.
 

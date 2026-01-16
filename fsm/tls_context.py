@@ -1,7 +1,8 @@
 import threading
-from tls.utils.crypto_utils import AESGCM_session_key, recreate_HelloMessage_public_key, from_b64
+from tls.utils.crypto_utils import AESGCM_session_key, recreate_HelloMessage_public_key, from_b64, to_b64
 from tls.hellomessage import HelloMessage
 from tls.utils.concurrency_utils import listen_thread, send_thread
+from tls.certificate import IdentityKeypair, CertificateAuthority, Certificate
 
 HOST = "127.0.0.1"
 PORT = 4444
@@ -29,7 +30,6 @@ class TLSContext:
         self.session_key = None
         self.server_identity = None
         self.server_certificate = None
-        self.ca_pub_b64 = None
         self.peer_pub_key = None
         self.peer_pub_bytes = None
 
@@ -58,6 +58,21 @@ class TLSContext:
         server_random = from_b64(self.hello_peer_dict["server_random"]) if self.role == "client" else self.hello_obj.random_bytes
 
         self.session_key = AESGCM_session_key(client_random, server_random, self.shared_secret)
+
+    def compute_cert(self):
+        # Generate the server Identity keypair
+        self.server_identity = IdentityKeypair()
+        identity_public_key_bytes = self.server_identity.to_bytes()
+
+        # Use Certificate Authority to issue a certificate for the server
+        certificate_authority = CertificateAuthority()  # This is the trusted third party that signs the certificate
+        self.server_certificate = certificate_authority.issue_certificate(
+            public_key_bytes=identity_public_key_bytes, 
+            identity="trusted-server")
+        
+        # Retrieve the CA public key bytes and encode for the network
+        ca_pub_bytes = certificate_authority.to_bytes()
+        self.ca_pub_b64 = to_b64(ca_pub_bytes)
 
 
     def start_communication(self):

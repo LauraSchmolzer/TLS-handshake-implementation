@@ -1,9 +1,7 @@
 import socket, threading,json,sys,time
 
-from tls.hellomessage import HelloMessage
-from tls.utils.concurrency_utils import listen_thread, send_thread
-from tls.certificate import CertificateAuthority, IdentityKeypair, Certificate
-from tls.utils.crypto_utils import to_b64, from_b64, recreate_CerificateAuthority_public_key, recreate_HelloMessage_public_key
+from tls.certificate import Certificate
+from tls.utils.crypto_utils import from_b64, recreate_CerificateAuthority_public_key
 
 from fsm.tls_context import TLSContext
 
@@ -62,19 +60,7 @@ class ReceiveHelloState(BaseState):
 
 class GenerateCertState(BaseState):
     def run(self, ctx: TLSContext):
-        # Generate the server Identity keypair
-        ctx.server_identity = IdentityKeypair()
-        identity_public_key_bytes = ctx.server_identity.to_bytes()
-
-        # Use Certificate Authority to issue a certificate for the server
-        certificate_authority = CertificateAuthority()  # This is the trusted third party that signs the certificate
-        ctx.server_certificate = certificate_authority.issue_certificate(
-            public_key_bytes=identity_public_key_bytes, 
-            identity="trusted-server")
-        
-        # Retrieve the CA public key bytes and encode for the network
-        ca_pub_bytes = certificate_authority.to_bytes()
-        ctx.ca_pub_b64 = to_b64(ca_pub_bytes)
+        ctx.compute_cert()
         return GenerateHelloState()
 
 # This is the initial state of the Client
@@ -118,8 +104,8 @@ class VerifyCertState(BaseState):
         server_certificate = Certificate.from_dict(hello_peer_dict["certificate"])
 
         # Retrieve Certificate Authority public key
-        ctx.ca_pub_b64 = hello_peer_dict["ca_pub"]
-        ca_pub_bytes = from_b64(ctx.ca_pub_b64)
+        ca_pub_b64 = hello_peer_dict["ca_pub"]
+        ca_pub_bytes = from_b64(ca_pub_b64)
 
         # Recreate Certificate Authority public key
         ca_public_key = recreate_CerificateAuthority_public_key(ca_pub_bytes)

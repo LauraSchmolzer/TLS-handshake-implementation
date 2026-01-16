@@ -61,7 +61,7 @@ def listen_thread(conn, session_key, shutdown_event,non_self):
                 shutdown_event.set()
                 break
             else:
-                print(f"\nReceived message: {plaintext}")
+                print(f"Received message: {plaintext}")
             counter += 1
     finally:
         # Ensure shutdown and close the socket
